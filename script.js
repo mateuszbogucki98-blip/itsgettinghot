@@ -14,7 +14,7 @@ Object.keys(cities).forEach(city => {
 });
 cconst cities = {
   // Największe miasta
-    "Warszawa":        { lat: 52.23, lon: 21.01 },
+  "Warszawa":        { lat: 52.23, lon: 21.01 },
   "Kraków":          { lat: 50.06, lon: 19.94 },
   "Łódź":            { lat: 51.77, lon: 19.46 },
   "Wrocław":         { lat: 51.11, lon: 17.03 },
@@ -164,7 +164,7 @@ function drawChart(labels, temps, altTemps, oldPred) {
     borderColor: "#e63946",
     backgroundColor: "rgba(230,57,70,0.1)",
     fill: true,
-    tension: 0  // 👈 changed
+    tension: 0  //
   },
   {
     label: "Scenariusz 50% CO₂",
@@ -172,7 +172,7 @@ function drawChart(labels, temps, altTemps, oldPred) {
     borderColor: "#457b9d",
     backgroundColor: "rgba(69,123,157,0.1)",
     fill: true,
-    tension: 0  // 👈 changed
+    tension: 0  //
   },
   {
     label: "Stare przewidywania",
@@ -180,7 +180,7 @@ function drawChart(labels, temps, altTemps, oldPred) {
     borderColor: "#f4a261",
     backgroundColor: "rgba(244,162,97,0.1)",
     fill: true,
-    tension: 0  // 👈 changed
+    tension: 0  //
   }
 ]
     },
