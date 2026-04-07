@@ -103,7 +103,7 @@ function drawChart(labels, temps, altTemps, oldPred) {
     options: {
       responsive: true,
       animation: {
-        duration: 500,
+        duration: 200,
         easing: "easeOutQuart"
       },
       scales: {
