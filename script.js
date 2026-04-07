@@ -6,6 +6,12 @@ const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
 let chart;
 
+const datalist = document.getElementById("cityList");
+Object.keys(cities).forEach(city => {
+  const option = document.createElement("option");
+  option.value = city;
+  datalist.appendChild(option);
+});
 cconst cities = {
   // Największe miasta
   Warszawa:        { lat: 52.23, lon: 21.01 },
