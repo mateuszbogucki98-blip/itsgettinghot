@@ -1,5 +1,6 @@
 const apiWeather = "https://api.open-meteo.com/v1/forecast";
 const apiAir = "https://api.openaq.org/v2/latest";
+const OPENAQ_API_KEY = "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5"; //
 
 const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
