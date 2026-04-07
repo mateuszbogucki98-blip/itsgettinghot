@@ -32,24 +32,28 @@ btn.addEventListener("click", async () => {
 
     let pm25Value = null;
 try {
-  const airResp = await fetch(`https://corsproxy.io/?${encodeURIComponent(airUrl)}`, {
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(airUrl)}`;
+  console.log("Fetching:", proxyUrl);
+  const airResp = await fetch(proxyUrl, {
     headers: { "X-API-Key": "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5" }
   });
-  if (airResp.ok) {
-    const air = await airResp.json();
-    const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
-    if (sensor?.id) {
-      const sensorResp = await fetch(`https://corsproxy.io/?${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`, {
-        headers: { "X-API-Key": "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5" }
-      });
-      if (sensorResp.ok) {
-        const sensorData = await sensorResp.json();
-        pm25Value = sensorData.results?.[0]?.value ?? null;
-      }
-    }
+  console.log("Air status:", airResp.status);
+  const air = await airResp.json();
+  console.log("Air result:", JSON.stringify(air));
+  const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
+  console.log("Sensor:", sensor);
+  if (sensor?.id) {
+    const sensorUrl = `https://corsproxy.io/?${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`;
+    const sensorResp = await fetch(sensorUrl, {
+      headers: { "X-API-Key": "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5" }
+    });
+    console.log("Sensor status:", sensorResp.status);
+    const sensorData = await sensorResp.json();
+    console.log("Sensor data:", JSON.stringify(sensorData));
+    pm25Value = sensorData.results?.[0]?.value ?? null;
   }
-} catch {
-  console.warn("Nie udało się pobrać danych z OpenAQ");
+} catch(e) {
+  console.error("OpenAQ error:", e);
 }
 
     const days    = weather.daily.time;
