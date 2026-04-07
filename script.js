@@ -31,20 +31,20 @@ btn.addEventListener("click", async () => {
     const weather = await weatherResp.json();
 
     let pm25Value = null;
-    try {
-      const airResp = await fetch(airUrl, {
-        headers: {
-          "X-API-Key": OPENAQ_API_KEY
-        }
-      });
-      if (airResp.ok) {
-        const air = await airResp.json();
-        const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
-        pm25Value = sensor?.latest?.value ?? null;
-      }
-    } catch {
-      console.warn("Nie udało się pobrać danych z OpenAQ");
+try {
+  const airResp = await fetch(airUrl, {
+    headers: {
+      "X-API-Key": OPENAQ_API_KEY
     }
+  });
+  if (airResp.ok) {
+    const air = await airResp.json();
+    const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
+    pm25Value = sensor?.latest?.value ?? null;
+  }
+} catch {
+  console.warn("Nie udało się pobrać danych z OpenAQ");
+}
 
     const days    = weather.daily.time;
     const temps   = weather.daily.temperature_2m_max;
