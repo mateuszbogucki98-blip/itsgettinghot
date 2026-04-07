@@ -74,31 +74,31 @@ function drawChart(labels, temps, altTemps, oldPred) {
     data: {
       labels,
       datasets: [
-        {
-          label: "Rzeczywiste temperatury",
-          data: temps,
-          borderColor: "#e63946",
-          backgroundColor: "rgba(230,57,70,0.1)",
-          fill: true,
-          tension: 0.3
-        },
-        {
-          label: "Scenariusz 50% CO₂",
-          data: altTemps,
-          borderColor: "#457b9d",
-          backgroundColor: "rgba(69,123,157,0.1)",
-          fill: true,
-          tension: 0.3
-        },
-        {
-          label: "Stare przewidywania",
-          data: oldPred,
-          borderColor: "#f4a261",
-          backgroundColor: "rgba(244,162,97,0.1)",
-          fill: true,
-          tension: 0.3
-        }
-      ]
+  {
+    label: "Rzeczywiste temperatury",
+    data: temps,
+    borderColor: "#e63946",
+    backgroundColor: "rgba(230,57,70,0.1)",
+    fill: true,
+    tension: 0  // 👈 changed
+  },
+  {
+    label: "Scenariusz 50% CO₂",
+    data: altTemps,
+    borderColor: "#457b9d",
+    backgroundColor: "rgba(69,123,157,0.1)",
+    fill: true,
+    tension: 0  // 👈 changed
+  },
+  {
+    label: "Stare przewidywania",
+    data: oldPred,
+    borderColor: "#f4a261",
+    backgroundColor: "rgba(244,162,97,0.1)",
+    fill: true,
+    tension: 0  // 👈 changed
+  }
+]
     },
     options: {
       responsive: true,
