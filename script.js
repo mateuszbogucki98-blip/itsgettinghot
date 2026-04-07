@@ -43,7 +43,7 @@ try {
   const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
   console.log("Sensor:", sensor);
   if (sensor?.id) {
-    const sensorUrl = `https://corsproxy.io/?${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`;
+    const sensorUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`;
     const sensorResp = await fetch(sensorUrl, {
       headers: { "X-API-Key": "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5" }
     });
