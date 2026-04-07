@@ -23,7 +23,7 @@ btn.addEventListener("click", async () => {
 
   const { lat, lon } = cities[city];
   const weatherUrl = `${apiWeather}?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&timezone=auto`;
-  const airUrl = `${apiAir}?iso=PL&parameters_id=2&limit=1`;
+  const airUrl = `${apiAir}?coordinates=${lat},${lon}&radius=50000&parameters_id=2&limit=1`;
 
   try {
     const weatherResp = await fetch(weatherUrl);
