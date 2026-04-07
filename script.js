@@ -33,8 +33,12 @@ btn.addEventListener("click", async () => {
 
     let air = { results: [] };
     try {
-      const airResp = await fetch(airUrl);
-      if (airResp.ok) air = await airResp.json();
+      const airResp = await fetch(airUrl, {
+  headers: {
+    "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5": OPENAQ_API_KEY
+  }
+});
+if (airResp.ok) air = await airResp.json();
     } catch {
       console.warn("Nie udało się pobrać danych z OpenAQ");
     }
