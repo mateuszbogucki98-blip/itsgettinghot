@@ -32,27 +32,24 @@ btn.addEventListener("click", async () => {
 
     let pm25Value = null;
 try {
-  const airResp = await fetch(airUrl, {
-    headers: { "X-API-Key": OPENAQ_API_KEY }
+  const airResp = await fetch(`https://corsproxy.io/?${encodeURIComponent(airUrl)}`, {
+    headers: { "X-API-Key": "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5" }
   });
   if (airResp.ok) {
     const air = await airResp.json();
-    console.log("AIR LOCATIONS:", JSON.stringify(air.results?.[0])); // 👈 debug
     const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
-    console.log("SENSOR FOUND:", sensor); // 👈 debug
     if (sensor?.id) {
-      const sensorResp = await fetch(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`, {
-        headers: { "X-API-Key": OPENAQ_API_KEY }
+      const sensorResp = await fetch(`https://corsproxy.io/?${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`, {
+        headers: { "X-API-Key": "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5" }
       });
       if (sensorResp.ok) {
         const sensorData = await sensorResp.json();
-        console.log("SENSOR DATA:", JSON.stringify(sensorData)); // 👈 debug
         pm25Value = sensorData.results?.[0]?.value ?? null;
       }
     }
   }
-} catch(e) {
-  console.warn("Nie udało się pobrać danych z OpenAQ", e);
+} catch {
+  console.warn("Nie udało się pobrać danych z OpenAQ");
 }
 
     const days    = weather.daily.time;
