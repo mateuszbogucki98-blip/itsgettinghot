@@ -37,19 +37,22 @@ try {
   });
   if (airResp.ok) {
     const air = await airResp.json();
+    console.log("AIR LOCATIONS:", JSON.stringify(air.results?.[0])); // 👈 debug
     const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
+    console.log("SENSOR FOUND:", sensor); // 👈 debug
     if (sensor?.id) {
       const sensorResp = await fetch(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`, {
         headers: { "X-API-Key": OPENAQ_API_KEY }
       });
       if (sensorResp.ok) {
         const sensorData = await sensorResp.json();
+        console.log("SENSOR DATA:", JSON.stringify(sensorData)); // 👈 debug
         pm25Value = sensorData.results?.[0]?.value ?? null;
       }
     }
   }
-} catch {
-  console.warn("Nie udało się pobrać danych z OpenAQ");
+} catch(e) {
+  console.warn("Nie udało się pobrać danych z OpenAQ", e);
 }
 
     const days    = weather.daily.time;
