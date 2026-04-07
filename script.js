@@ -5,6 +5,7 @@ const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
 let chart;
 
+// Uniwersalne współrzędne dla kilku miast
 const cities = {
   Warszawa: { lat: 52.23, lon: 21.01 },
   Kraków: { lat: 50.06, lon: 19.94 },
@@ -62,16 +63,21 @@ function drawChart(labels, temps, altTemps, oldPred) {
       datasets: [
         { label: "Rzeczywiste temperatury", data: temps, borderColor: "red", tension: 0.3 },
         { label: "Scenariusz 50% CO₂", data: altTemps, borderColor: "blue", tension: 0.3 },
-        { label: "Stare przewidywania", data: oldPred, borderColor: "gold", tension: 0.3 },
+        { label: "Stare przewidywania", data: oldPred, borderColor: "gold", tension: 0.3 }
       ]
     },
     options: {
-      animation: { duration: 2000, easing: "easeOutQuart" },
+      animation: {
+        duration: 2000,
+        easing: "easeOutQuart"
+      },
       scales: {
         y: { title: { display: true, text: "°C" } },
         x: { title: { display: true, text: "Dzień" } }
       },
-      plugins: { legend: { position: "bottom" } }
+      plugins: {
+        legend: { position: "bottom" }
+      }
     }
   });
 }
