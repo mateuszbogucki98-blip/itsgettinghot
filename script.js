@@ -14,7 +14,7 @@ Object.keys(cities).forEach(city => {
 });
 cconst cities = {
   // Największe miasta
-  Warszawa:        { lat: 52.23, lon: 21.01 },
+  "Warszawa":        { lat: 52.23, lon: 21.01 },
   Kraków:          { lat: 50.06, lon: 19.94 },
   Łódź:            { lat: 51.77, lon: 19.46 },
   Wrocław:         { lat: 51.11, lon: 17.03 },
