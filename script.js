@@ -1,5 +1,4 @@
 const apiWeather = "[api.open-meteo.com](https://api.open-meteo.com/v1/forecast)";
-const apiAir = "[api.openaq.org](https://api.openaq.org/v2/latest)";
 
 const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
@@ -21,31 +20,16 @@ btn.addEventListener("click", async () => {
   }
 
   const { lat, lon } = cities[city];
-
-  // ---- URL-e API ----
   const weatherUrl = `${apiWeather}?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&timezone=auto`;
-  // poprawione zapytanie do OpenAQ (410 fix)
-  const airUrl = `${apiAir}?country=PL&limit=1&parameter=pm25`;
 
   try {
-    // --- dane pogodowe ---
     const weatherResp = await fetch(weatherUrl);
     if (!weatherResp.ok) throw new Error("Nie udało się pobrać danych pogodowych");
     const weather = await weatherResp.json();
 
-    // --- dane jakości powietrza ---
-    let air = { results: [] };
-    try {
-      const airResp = await fetch(airUrl);
-      if (airResp.ok) air = await airResp.json();
-    } catch {
-      console.warn("Nie udało się pobrać danych z OpenAQ");
-    }
-
-    // --- przetwarzanie danych ---
     const days = weather.daily.time;
     const temps = weather.daily.temperature_2m_max;
-    const altTemps = temps.map(t => t * 0.9); // scenariusz 50% CO₂
+    const altTemps = temps.map(t => t * 0.9);
     const oldPred = temps.map((t, i) => t - Math.sin(i) * 1.2);
     const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
 
@@ -53,17 +37,15 @@ btn.addEventListener("click", async () => {
     document.getElementById("sunshine").textContent = (
       weather.daily.sunshine_duration.reduce((a, b) => a + b, 0) / 3600 / temps.length
     ).toFixed(1);
-    document.getElementById("air").textContent =
-      air.results[0]?.measurements[0]?.value?.toFixed(1) || "brak danych";
+    document.getElementById("air").textContent = "brak danych (API zablokowane)";
 
     drawChart(days, temps, altTemps, oldPred);
   } catch (err) {
     console.error(err);
-    alert("Błąd podczas pobierania danych. Sprawdź konsolę.");
+    alert("Błąd podczas pobierania danych pogodowych.");
   }
 });
 
-// ---- rysowanie wykresu ----
 function drawChart(labels, temps, altTemps, oldPred) {
   const ctx = document.getElementById("tempChart").getContext("2d");
   if (chart) chart.destroy();
@@ -73,38 +55,18 @@ function drawChart(labels, temps, altTemps, oldPred) {
     data: {
       labels,
       datasets: [
-        {
-          label: "Rzeczywiste temperatury",
-          data: temps,
-          borderColor: "red",
-          tension: 0.3
-        },
-        {
-          label: "Scenariusz 50% CO₂",
-          data: altTemps,
-          borderColor: "blue",
-          tension: 0.3
-        },
-        {
-          label: "Stare przewidywania",
-          data: oldPred,
-          borderColor: "gold",
-          tension: 0.3
-        }
+        { label: "Rzeczywiste temperatury", data: temps, borderColor: "red", tension: 0.3 },
+        { label: "Scenariusz 50% CO₂", data: altTemps, borderColor: "blue", tension: 0.3 },
+        { label: "Stare przewidywania", data: oldPred, borderColor: "gold", tension: 0.3 }
       ]
     },
     options: {
-      animation: {
-        duration: 2000,
-        easing: "easeOutQuart"
-      },
+      animation: { duration: 2000, easing: "easeOutQuart" },
       scales: {
         y: { title: { display: true, text: "°C" } },
         x: { title: { display: true, text: "Dzień" } }
       },
-      plugins: {
-        legend: { position: "bottom" }
-      }
+      plugins: { legend: { position: "bottom" } }
     }
   });
 }
