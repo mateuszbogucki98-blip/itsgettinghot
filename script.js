@@ -33,14 +33,20 @@ btn.addEventListener("click", async () => {
     let pm25Value = null;
 try {
   const airResp = await fetch(airUrl, {
-    headers: {
-      "X-API-Key": OPENAQ_API_KEY
-    }
+    headers: { "X-API-Key": OPENAQ_API_KEY }
   });
   if (airResp.ok) {
     const air = await airResp.json();
     const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
-    pm25Value = sensor?.latest?.value ?? null;
+    if (sensor?.id) {
+      const sensorResp = await fetch(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`, {
+        headers: { "X-API-Key": OPENAQ_API_KEY }
+      });
+      if (sensorResp.ok) {
+        const sensorData = await sensorResp.json();
+        pm25Value = sensorData.results?.[0]?.value ?? null;
+      }
+    }
   }
 } catch {
   console.warn("Nie udało się pobrać danych z OpenAQ");
