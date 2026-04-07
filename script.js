@@ -1,5 +1,5 @@
-const apiWeather = "https://api.open-meteo.com/v1/forecast";
-const apiAir = "https://api.openaq.org/v2/latest";
+const apiWeather = "[api.open-meteo.com](https://api.open-meteo.com/v1/forecast)";
+const apiAir = "[api.openaq.org](https://api.openaq.org/v2/latest)";
 
 const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
@@ -15,7 +15,6 @@ const cities = {
 
 btn.addEventListener("click", async () => {
   const city = input.value.trim();
-
   if (!city || !cities[city]) {
     alert("Wpisz jedno z miast: Warszawa, Kraków, Gdańsk, Wrocław, Poznań");
     return;
@@ -23,82 +22,50 @@ btn.addEventListener("click", async () => {
 
   const { lat, lon } = cities[city];
 
+  // ---- URL-e API ----
   const weatherUrl = `${apiWeather}?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&timezone=auto`;
-  const airUrl = `${apiAir}?city=${city}&parameter=pm25`;
+  // poprawione zapytanie do OpenAQ (410 fix)
+  const airUrl = `${apiAir}?country=PL&limit=1&parameter=pm25`;
 
   try {
-    const [weatherResp, airResp] = await Promise.all([
-      fetch(weatherUrl),
-      fetch(airUrl)
-    ]);
+    // --- dane pogodowe ---
+    const weatherResp = await fetch(weatherUrl);
+    if (!weatherResp.ok) throw new Error("Nie udało się pobrać danych pogodowych");
+    const weather = await weatherResp.json();
 
-    console.log("Weather status:", weatherResp.status);
-    console.log("Air status:", airResp.status);
-
-    let weather = null;
-    let air = null;
-
-    // 🌤️ WEATHER
-    if (weatherResp.ok) {
-      weather = await weatherResp.json();
-    } else {
-      console.error("Weather API error");
+    // --- dane jakości powietrza ---
+    let air = { results: [] };
+    try {
+      const airResp = await fetch(airUrl);
+      if (airResp.ok) air = await airResp.json();
+    } catch {
+      console.warn("Nie udało się pobrać danych z OpenAQ");
     }
 
-    // 🌫️ AIR
-    if (airResp.ok) {
-      air = await airResp.json();
-    } else {
-      console.error("Air API error");
-    }
-
-    // ❌ jeśli nie ma pogody → nie ma sensu iść dalej
-    if (!weather) {
-      alert("Nie udało się pobrać danych pogodowych.");
-      return;
-    }
-
-    // 📊 dane pogodowe
-    const days = weather.daily?.time || [];
-    const temps = weather.daily?.temperature_2m_max || [];
-
-    if (!days.length || !temps.length) {
-      alert("Brak danych pogodowych.");
-      return;
-    }
-
-    const altTemps = temps.map(t => t * 0.9);
+    // --- przetwarzanie danych ---
+    const days = weather.daily.time;
+    const temps = weather.daily.temperature_2m_max;
+    const altTemps = temps.map(t => t * 0.9); // scenariusz 50% CO₂
     const oldPred = temps.map((t, i) => t - Math.sin(i) * 1.2);
-
-    const avgTemp = (
-      temps.reduce((a, b) => a + b, 0) / temps.length
-    ).toFixed(1);
-
-    const sunshine = (
-      (weather.daily.sunshine_duration?.reduce((a, b) => a + b, 0) || 0) /
-      3600 /
-      temps.length
-    ).toFixed(1);
-
-    // 🌫️ jakość powietrza (bezpiecznie)
-    const airValue = air?.results?.[0]?.measurements?.[0]?.value;
+    const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
 
     document.getElementById("avgTemp").textContent = avgTemp;
-    document.getElementById("sunshine").textContent = sunshine;
+    document.getElementById("sunshine").textContent = (
+      weather.daily.sunshine_duration.reduce((a, b) => a + b, 0) / 3600 / temps.length
+    ).toFixed(1);
     document.getElementById("air").textContent =
-      airValue ? airValue.toFixed(1) : "brak danych";
+      air.results[0]?.measurements[0]?.value?.toFixed(1) || "brak danych";
 
     drawChart(days, temps, altTemps, oldPred);
-
   } catch (err) {
-    console.error("Global error:", err);
-    alert("Błąd podczas pobierania danych.");
+    console.error(err);
+    alert("Błąd podczas pobierania danych. Sprawdź konsolę.");
   }
 });
 
+// ---- rysowanie wykresu ----
 function drawChart(labels, temps, altTemps, oldPred) {
   const ctx = document.getElementById("tempChart").getContext("2d");
-
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
@@ -132,12 +99,8 @@ function drawChart(labels, temps, altTemps, oldPred) {
         easing: "easeOutQuart"
       },
       scales: {
-        y: {
-          title: { display: true, text: "°C" }
-        },
-        x: {
-          title: { display: true, text: "Dzień" }
-        }
+        y: { title: { display: true, text: "°C" } },
+        x: { title: { display: true, text: "Dzień" } }
       },
       plugins: {
         legend: { position: "bottom" }
