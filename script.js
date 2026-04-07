@@ -15,14 +15,16 @@ const cities = {
 
 btn.addEventListener("click", async () => {
   const city = input.value.trim();
+
   if (!city || !cities[city]) {
     alert("Wpisz jedno z miast: Warszawa, Kraków, Gdańsk, Wrocław, Poznań");
     return;
   }
 
   const { lat, lon } = cities[city];
+
   const weatherUrl = `${apiWeather}?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&timezone=auto`;
-  const airUrl = `${apiAir}?coordinates=${lat},${lon}&parameter=pm25`;
+  const airUrl = `${apiAir}?city=${city}&parameter=pm25`;
 
   try {
     const [weatherResp, airResp] = await Promise.all([
@@ -30,35 +32,73 @@ btn.addEventListener("click", async () => {
       fetch(airUrl)
     ]);
 
-    if (!weatherResp.ok || !airResp.ok) {
-      throw new Error("Nie udało się pobrać danych z API.");
+    console.log("Weather status:", weatherResp.status);
+    console.log("Air status:", airResp.status);
+
+    let weather = null;
+    let air = null;
+
+    // 🌤️ WEATHER
+    if (weatherResp.ok) {
+      weather = await weatherResp.json();
+    } else {
+      console.error("Weather API error");
     }
 
-    const weather = await weatherResp.json();
-    const air = await airResp.json();
+    // 🌫️ AIR
+    if (airResp.ok) {
+      air = await airResp.json();
+    } else {
+      console.error("Air API error");
+    }
 
-    const days = weather.daily.time;
-    const temps = weather.daily.temperature_2m_max;
+    // ❌ jeśli nie ma pogody → nie ma sensu iść dalej
+    if (!weather) {
+      alert("Nie udało się pobrać danych pogodowych.");
+      return;
+    }
+
+    // 📊 dane pogodowe
+    const days = weather.daily?.time || [];
+    const temps = weather.daily?.temperature_2m_max || [];
+
+    if (!days.length || !temps.length) {
+      alert("Brak danych pogodowych.");
+      return;
+    }
+
     const altTemps = temps.map(t => t * 0.9);
-    const oldPred = temps.map((t, i) => t - (Math.sin(i) * 1.2));
-    const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
+    const oldPred = temps.map((t, i) => t - Math.sin(i) * 1.2);
+
+    const avgTemp = (
+      temps.reduce((a, b) => a + b, 0) / temps.length
+    ).toFixed(1);
+
+    const sunshine = (
+      (weather.daily.sunshine_duration?.reduce((a, b) => a + b, 0) || 0) /
+      3600 /
+      temps.length
+    ).toFixed(1);
+
+    // 🌫️ jakość powietrza (bezpiecznie)
+    const airValue = air?.results?.[0]?.measurements?.[0]?.value;
 
     document.getElementById("avgTemp").textContent = avgTemp;
-    document.getElementById("sunshine").textContent = (
-      weather.daily.sunshine_duration.reduce((a, b) => a + b, 0) / 3600 / temps.length
-    ).toFixed(1);
+    document.getElementById("sunshine").textContent = sunshine;
     document.getElementById("air").textContent =
-      air.results[0]?.measurements[0]?.value.toFixed(1) || "brak danych";
+      airValue ? airValue.toFixed(1) : "brak danych";
 
     drawChart(days, temps, altTemps, oldPred);
+
   } catch (err) {
-    console.error(err);
+    console.error("Global error:", err);
     alert("Błąd podczas pobierania danych.");
   }
 });
 
 function drawChart(labels, temps, altTemps, oldPred) {
   const ctx = document.getElementById("tempChart").getContext("2d");
+
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
@@ -92,8 +132,12 @@ function drawChart(labels, temps, altTemps, oldPred) {
         easing: "easeOutQuart"
       },
       scales: {
-        y: { title: { display: true, text: "°C" } },
-        x: { title: { display: true, text: "Dzień" } }
+        y: {
+          title: { display: true, text: "°C" }
+        },
+        x: {
+          title: { display: true, text: "Dzień" }
+        }
       },
       plugins: {
         legend: { position: "bottom" }
