@@ -1,7 +1,6 @@
 const apiWeather = "[api.open-meteo.com](https://api.open-meteo.com/v1/forecast)";
 const apiAir = "[api.openaq.org](https://api.openaq.org/v2/latest)";
 
-
 const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
 let chart;
