@@ -1,6 +1,6 @@
 const apiWeather = "https://api.open-meteo.com/v1/forecast";
 const apiAir = "https://api.openaq.org/v3/locations";
-const OPENAQ_API_KEY = "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5"; //
+const OPENAQ_API_KEY = "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5";
 
 const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
@@ -22,43 +22,44 @@ btn.addEventListener("click", async () => {
   }
 
   const { lat, lon } = cities[city];
-
   const weatherUrl = `${apiWeather}?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&timezone=auto`;
-  const airUrl = `${apiAir}?country=PL&limit=1&parameter=pm25`;
+  const airUrl = `${apiAir}?iso=PL&parameters_id=2&limit=1`;
 
   try {
     const weatherResp = await fetch(weatherUrl);
     if (!weatherResp.ok) throw new Error("Nie udało się pobrać danych pogodowych");
     const weather = await weatherResp.json();
 
-    let air = { results: [] };
+    let pm25Value = null;
     try {
       const airResp = await fetch(airUrl, {
-  headers: {
-    "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5": OPENAQ_API_KEY
-  }
-});
-if (airResp.ok) air = await airResp.json();
+        headers: {
+          "X-API-Key": OPENAQ_API_KEY
+        }
+      });
+      if (airResp.ok) {
+        const air = await airResp.json();
+        const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
+        pm25Value = sensor?.latest?.value ?? null;
+      }
     } catch {
       console.warn("Nie udało się pobrać danych z OpenAQ");
     }
 
-    const days  = weather.daily.time;
-    const temps = weather.daily.temperature_2m_max;
+    const days    = weather.daily.time;
+    const temps   = weather.daily.temperature_2m_max;
     const altTemps = temps.map(t => parseFloat((t * 0.9).toFixed(1)));
     const oldPred  = temps.map((t, i) => parseFloat((t - Math.sin(i) * 1.2).toFixed(1)));
-
-    const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
+    const avgTemp  = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
 
     document.getElementById("avgTemp").textContent = avgTemp;
     document.getElementById("sunshine").textContent = (
       weather.daily.sunshine_duration.reduce((a, b) => a + b, 0) / 3600 / temps.length
     ).toFixed(1);
-
-    const pm = air.results?.[0]?.measurements?.find(m => m.parameter === "pm25");
-    document.getElementById("air").textContent = pm ? pm.value.toFixed(1) : "brak danych";
+    document.getElementById("air").textContent = pm25Value !== null ? pm25Value.toFixed(1) : "brak danych";
 
     drawChart(days, temps, altTemps, oldPred);
+
   } catch (err) {
     console.error(err);
     alert("Błąd podczas pobierania danych. Sprawdź konsolę.");
@@ -68,7 +69,6 @@ if (airResp.ok) air = await airResp.json();
 function drawChart(labels, temps, altTemps, oldPred) {
   const ctx = document.getElementById("tempChart").getContext("2d");
   if (chart) chart.destroy();
-
   chart = new Chart(ctx, {
     type: "line",
     data: {
