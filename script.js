@@ -1,4 +1,4 @@
-const apiWeather = "[api.open-meteo.com](https://api.open-meteo.com/v1/forecast)";
+const apiWeather = "i.[apo[api.open-meteo.com](https://api.open-meteo.com/v1/forecast)";
 const apiAir = "[api.openaq.org](https://api.openaq.org/v2/latest)";
 
 
