@@ -219,7 +219,7 @@ function drawChart(labels, temps, altTemps, oldPred) {
           tension: 0
         },
         {
-          label: "Stare przewidywania",
+          label: "Stare prognozy IPCC AR4 (niedoszacowane o ~0.7°C)",
           data: oldPred,
           borderColor: "#f4a261",
           backgroundColor: "rgba(244,162,97,0.1)",
