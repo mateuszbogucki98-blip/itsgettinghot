@@ -229,18 +229,21 @@ function drawChart(labels, temps, altTemps, oldPred) {
       ]
     },
     options: {
-      responsive: true,
-      animation: {
-        duration: 500,
-        easing: "easeOutQuart"
-      },
-      scales: {
-        y: { title: { display: true, text: "°C" } },
-        x: { title: { display: true, text: "Dzień" } }
-      },
-      plugins: {
-        legend: { position: "bottom" }
-      }
+  responsive: true,
+  animation: { duration: 500, easing: "easeOutQuart" },
+  plugins: {
+    legend: { display: false },
+  },
+  scales: {
+    y: {
+      title: { display: true, text: "°C", color: "#888880" },
+      grid: { color: "rgba(255,255,255,0.05)" },
+      ticks: { color: "#888880", font: { family: "DM Mono" } }
+    },
+    x: {
+      title: { display: true, text: "Dzień", color: "#888880" },
+      grid: { color: "rgba(255,255,255,0.05)" },
+      ticks: { color: "#888880", font: { family: "DM Mono" } }
     }
-  });
+  }
 }
