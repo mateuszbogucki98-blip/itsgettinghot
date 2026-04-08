@@ -12,7 +12,7 @@ Object.keys(cities).forEach(city => {
   option.value = city;
   datalist.appendChild(option);
 });
-cconst cities = {
+const cities = {
   // Największe miasta
   "Warszawa":        { lat: 52.23, lon: 21.01 },
   "Kraków":          { lat: 50.06, lon: 19.94 },
