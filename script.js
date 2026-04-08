@@ -176,7 +176,7 @@ btn.addEventListener("click", async () => {
 
     const days     = weather.daily.time;
     const temps    = weather.daily.temperature_2m_max;
-    const altTemps = temps.map(t => parseFloat((t * 0.9).toFixed(1)));
+    const altTemps = temps.map(t => parseFloat((t - 1.0).toFixed(1)));
     const oldPred  = temps.map((t, i) => parseFloat((t - Math.sin(i) * 1.2).toFixed(1)));
     const avgTemp  = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
 
@@ -211,7 +211,7 @@ function drawChart(labels, temps, altTemps, oldPred) {
           tension: 0
         },
         {
-          label: "Scenariusz 50% CO₂",
+          label: "Scenariusz 50% mniej CO₂ (est. -1°C wg IPCC)",
           data: altTemps,
           borderColor: "#457b9d",
           backgroundColor: "rgba(69,123,157,0.1)",
