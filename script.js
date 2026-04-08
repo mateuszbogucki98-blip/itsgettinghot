@@ -1,4 +1,6 @@
 const apiWeather = "https://api.open-meteo.com/v1/forecast";
+const apiAir = "https://api.openaq.org/v3/locations";
+const OPENAQ_API_KEY = "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5";
 
 const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
@@ -134,24 +136,57 @@ btn.addEventListener("click", async () => {
   }
 
   const { lat, lon } = cities[city];
-  const weatherUrl = `${apiWeather}?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,sunshine_duration,uv_index_max&timezone=auto`;
+  const weatherUrl = `${apiWeather}?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&timezone=auto`;
+  const airUrl = `${apiAir}?coordinates=${lat},${lon}&radius=50000&parameters_id=2&limit=1`;
 
   try {
     const weatherResp = await fetch(weatherUrl);
     if (!weatherResp.ok) throw new Error("Nie udało się pobrać danych pogodowych");
     const weather = await weatherResp.json();
 
+    let pm25Value = null;
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(airUrl)}`;
+      const airResp = await fetch(proxyUrl, {
+        headers: { "X-API-Key": OPENAQ_API_KEY },
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (airResp.ok) {
+        const air = await airResp.json();
+        const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
+        if (sensor?.id) {
+          const controller2 = new AbortController();
+          const timeout2 = setTimeout(() => controller2.abort(), 3000);
+          const sensorUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`;
+          const sensorResp = await fetch(sensorUrl, {
+            headers: { "X-API-Key": OPENAQ_API_KEY },
+            signal: controller2.signal
+          });
+          clearTimeout(timeout2);
+          if (sensorResp.ok) {
+            const sensorData = await sensorResp.json();
+            pm25Value = sensorData.results?.[0]?.value ?? null;
+          }
+        }
+      }
+    } catch(e) {
+      console.warn("OpenAQ timeout lub błąd:", e.message);
+    }
+
     const days     = weather.daily.time;
     const temps    = weather.daily.temperature_2m_max;
     const altTemps = temps.map(t => parseFloat((t - 1.0).toFixed(1)));
     const oldPred  = temps.map(t => parseFloat((t - 0.7).toFixed(1)));
     const avgTemp  = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
-    const uvIndex  = weather.daily.uv_index_max?.[0]?.toFixed(1) ?? "–";
-    const sunshine = (weather.daily.sunshine_duration.reduce((a, b) => a + b, 0) / 3600 / temps.length).toFixed(1);
 
     document.getElementById("avgTemp").textContent = avgTemp;
-    document.getElementById("sunshine").textContent = sunshine;
-    document.getElementById("uv").textContent = uvIndex;
+    document.getElementById("sunshine").textContent = (
+      weather.daily.sunshine_duration.reduce((a, b) => a + b, 0) / 3600 / temps.length
+    ).toFixed(1);
+    document.getElementById("air").textContent = pm25Value !== null ? pm25Value.toFixed(1) : "brak danych";
 
     drawChart(days, temps, altTemps, oldPred);
 
