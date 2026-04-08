@@ -6,14 +6,7 @@ const btn = document.getElementById("loadBtn");
 const input = document.getElementById("cityInput");
 let chart;
 
-const datalist = document.getElementById("cityList");
-Object.keys(cities).forEach(city => {
-  const option = document.createElement("option");
-  option.value = city;
-  datalist.appendChild(option);
-});
 const cities = {
-  // Największe miasta
   "Warszawa":        { lat: 52.23, lon: 21.01 },
   "Kraków":          { lat: 50.06, lon: 19.94 },
   "Łódź":            { lat: 51.77, lon: 19.46 },
@@ -43,7 +36,7 @@ const cities = {
   "Opole":           { lat: 50.67, lon: 17.93 },
   "Tychy":           { lat: 50.13, lon: 18.99 },
   "Gorzów_Wielkopolski": { lat: 52.73, lon: 15.24 },
-  "Dąbrowa_Górnicza":{ lat: 50.32, lon: 19.19 },
+  "Dąbrowa_Górnicza": { lat: 50.32, lon: 19.19 },
   "Płock":           { lat: 52.55, lon: 19.71 },
   "Elbląg":          { lat: 54.16, lon: 19.40 },
   "Wałbrzych":       { lat: 50.77, lon: 16.28 },
@@ -56,8 +49,7 @@ const cities = {
   "Grudziądz":       { lat: 53.48, lon: 18.75 },
   "Jaworzno":        { lat: 50.20, lon: 19.27 },
   "Słupsk":          { lat: 54.46, lon: 17.03 },
-  "Jastrzębie_Zdrój":{ lat: 49.95, lon: 18.58 },
-  "Nowe_Tychy":      { lat: 50.13, lon: 18.99 },
+  "Jastrzębie_Zdrój": { lat: 49.95, lon: 18.58 },
   "Siedlce":         { lat: 52.17, lon: 22.29 },
   "Mysłowice":       { lat: 50.21, lon: 19.17 },
   "Konin":           { lat: 52.23, lon: 18.25 },
@@ -76,7 +68,7 @@ const cities = {
   "Nowy_Sącz":       { lat: 49.62, lon: 20.69 },
   "Jelenia_Góra":    { lat: 50.90, lon: 15.73 },
   "Łomża":           { lat: 53.18, lon: 22.06 },
-  "Kędzierzyn_Koźle":{ lat: 50.34, lon: 18.21 },
+  "Kędzierzyn_Koźle": { lat: 50.34, lon: 18.21 },
   "Pabianice":       { lat: 51.66, lon: 19.35 },
   "Nowy_Targ":       { lat: 49.48, lon: 20.03 },
   "Suwałki":         { lat: 54.10, lon: 22.93 },
@@ -85,13 +77,67 @@ const cities = {
   "Stalowa_Wola":    { lat: 50.58, lon: 22.05 },
   "Tczew":           { lat: 54.09, lon: 18.78 },
   "Leszno":          { lat: 51.84, lon: 16.58 },
-  "Ostrołęka":       { lat: 53.08, lon: 21.57 }
+  "Ostrołęka":       { lat: 53.08, lon: 21.57 },
+  "Zakopane":        { lat: 49.30, lon: 19.95 },
+  "Sopot":           { lat: 54.44, lon: 18.56 },
+  "Hel":             { lat: 54.61, lon: 18.80 },
+  "Kołobrzeg":       { lat: 54.17, lon: 15.58 },
+  "Świnoujście":     { lat: 53.91, lon: 14.25 },
+  "Malbork":         { lat: 54.04, lon: 19.03 },
+  "Giżycko":         { lat: 54.04, lon: 21.76 },
+  "Augustów":        { lat: 53.84, lon: 22.98 },
+  "Białowieża":      { lat: 52.70, lon: 23.87 },
+  "Kazimierz_Dolny": { lat: 51.32, lon: 21.95 },
+  "Nałęczów":        { lat: 51.28, lon: 22.21 },
+  "Puławy":          { lat: 51.42, lon: 21.97 },
+  "Sandomierz":      { lat: 50.68, lon: 21.75 },
+  "Zamość":          { lat: 50.72, lon: 23.25 },
+  "Oświęcim":        { lat: 50.03, lon: 19.21 },
+  "Wieliczka":       { lat: 49.99, lon: 20.07 },
+  "Wadowice":        { lat: 49.88, lon: 19.50 },
+  "Cieszyn":         { lat: 49.75, lon: 18.63 },
+  "Wisła":           { lat: 49.65, lon: 18.87 },
+  "Ustroń":          { lat: 49.72, lon: 18.81 },
+  "Szczyrk":         { lat: 49.72, lon: 19.03 },
+  "Sanok":           { lat: 49.56, lon: 22.20 },
+  "Krosno":          { lat: 49.69, lon: 21.77 },
+  "Jarosław":        { lat: 49.96, lon: 22.68 },
+  "Tarnobrzeg":      { lat: 50.57, lon: 21.68 },
+  "Stalowa_Wola":    { lat: 50.58, lon: 22.05 },
+  "Nysa":            { lat: 50.47, lon: 17.33 },
+  "Kłodzko":         { lat: 50.44, lon: 16.66 },
+  "Racibórz":        { lat: 50.09, lon: 18.22 },
+  "Pszczyna":        { lat: 49.98, lon: 18.95 },
+  "Tarnowskie_Góry": { lat: 50.44, lon: 18.86 },
+  "Zawiercie":       { lat: 50.49, lon: 19.42 },
+  "Olkusz":          { lat: 50.28, lon: 19.56 },
+  "Bochnia":         { lat: 49.97, lon: 20.43 },
+  "Nowa_Ruda":       { lat: 50.58, lon: 16.50 },
+  "Bolesławiec":     { lat: 51.26, lon: 15.57 },
+  "Głogów":          { lat: 51.66, lon: 16.08 },
+  "Legnica":         { lat: 51.21, lon: 16.16 },
+  "Lubin":           { lat: 51.40, lon: 16.20 },
+  "Świdnica":        { lat: 50.85, lon: 16.49 },
+  "Wodzisław_Śląski": { lat: 50.00, lon: 18.46 },
+  "Żory":            { lat: 50.03, lon: 18.70 },
+  "Knurów":          { lat: 50.22, lon: 18.68 },
+  "Mikołów":         { lat: 50.17, lon: 18.90 },
+  "Piekary_Śląskie": { lat: 50.38, lon: 18.95 },
+  "Siemianowice_Śląskie": { lat: 50.33, lon: 19.02 }
 };
+
+// datalist MUST be after cities
+const datalist = document.getElementById("cityList");
+Object.keys(cities).forEach(city => {
+  const option = document.createElement("option");
+  option.value = city;
+  datalist.appendChild(option);
+});
 
 btn.addEventListener("click", async () => {
   const city = input.value.trim();
   if (!city || !cities[city]) {
-    alert("Wpisz jedno z miast: Warszawa, Kraków, Gdańsk, Wrocław, Poznań");
+    alert("Wpisz nazwę miasta z listy (np. Warszawa, Zakopane, Hel...)");
     return;
   }
 
@@ -105,33 +151,31 @@ btn.addEventListener("click", async () => {
     const weather = await weatherResp.json();
 
     let pm25Value = null;
-try {
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(airUrl)}`;
-  console.log("Fetching:", proxyUrl);
-  const airResp = await fetch(proxyUrl, {
-    headers: { "X-API-Key": "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5" }
-  });
-  console.log("Air status:", airResp.status);
-  const air = await airResp.json();
-  console.log("Air result:", JSON.stringify(air));
-  const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
-  console.log("Sensor:", sensor);
-  if (sensor?.id) {
-    const sensorUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`;
-    const sensorResp = await fetch(sensorUrl, {
-      headers: { "X-API-Key": "e3b342756b9c4295a0b45455c54c22e94662abab57a2bd016e1a92c83bf97ae5" }
-    });
-    console.log("Sensor status:", sensorResp.status);
-    const sensorData = await sensorResp.json();
-    console.log("Sensor data:", JSON.stringify(sensorData));
-    pm25Value = sensorData.results?.[0]?.value ?? null;
-  }
-} catch(e) {
-  console.error("OpenAQ error:", e);
-}
+    try {
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(airUrl)}`;
+      const airResp = await fetch(proxyUrl, {
+        headers: { "X-API-Key": OPENAQ_API_KEY }
+      });
+      if (airResp.ok) {
+        const air = await airResp.json();
+        const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
+        if (sensor?.id) {
+          const sensorUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`;
+          const sensorResp = await fetch(sensorUrl, {
+            headers: { "X-API-Key": OPENAQ_API_KEY }
+          });
+          if (sensorResp.ok) {
+            const sensorData = await sensorResp.json();
+            pm25Value = sensorData.results?.[0]?.value ?? null;
+          }
+        }
+      }
+    } catch(e) {
+      console.warn("Nie udało się pobrać danych z OpenAQ", e);
+    }
 
-    const days    = weather.daily.time;
-    const temps   = weather.daily.temperature_2m_max;
+    const days     = weather.daily.time;
+    const temps    = weather.daily.temperature_2m_max;
     const altTemps = temps.map(t => parseFloat((t * 0.9).toFixed(1)));
     const oldPred  = temps.map((t, i) => parseFloat((t - Math.sin(i) * 1.2).toFixed(1)));
     const avgTemp  = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
@@ -158,31 +202,31 @@ function drawChart(labels, temps, altTemps, oldPred) {
     data: {
       labels,
       datasets: [
-  {
-    label: "Rzeczywiste temperatury",
-    data: temps,
-    borderColor: "#e63946",
-    backgroundColor: "rgba(230,57,70,0.1)",
-    fill: true,
-    tension: 0  //
-  },
-  {
-    label: "Scenariusz 50% CO₂",
-    data: altTemps,
-    borderColor: "#457b9d",
-    backgroundColor: "rgba(69,123,157,0.1)",
-    fill: true,
-    tension: 0  //
-  },
-  {
-    label: "Stare przewidywania",
-    data: oldPred,
-    borderColor: "#f4a261",
-    backgroundColor: "rgba(244,162,97,0.1)",
-    fill: true,
-    tension: 0  //
-  }
-]
+        {
+          label: "Rzeczywiste temperatury",
+          data: temps,
+          borderColor: "#e63946",
+          backgroundColor: "rgba(230,57,70,0.1)",
+          fill: true,
+          tension: 0
+        },
+        {
+          label: "Scenariusz 50% CO₂",
+          data: altTemps,
+          borderColor: "#457b9d",
+          backgroundColor: "rgba(69,123,157,0.1)",
+          fill: true,
+          tension: 0
+        },
+        {
+          label: "Stare przewidywania",
+          data: oldPred,
+          borderColor: "#f4a261",
+          backgroundColor: "rgba(244,162,97,0.1)",
+          fill: true,
+          tension: 0
+        }
+      ]
     },
     options: {
       responsive: true,
