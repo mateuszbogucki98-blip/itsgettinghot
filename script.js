@@ -151,23 +151,40 @@ btn.addEventListener("click", async () => {
     const weather = await weatherResp.json();
 
     let pm25Value = null;
-    try {
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(airUrl)}`;
-      const airResp = await fetch(proxyUrl, {
-        headers: { "X-API-Key": OPENAQ_API_KEY }
+try {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(airUrl)}`;
+  const airResp = await fetch(proxyUrl, {
+    headers: { "X-API-Key": OPENAQ_API_KEY },
+    signal: controller.signal
+  });
+  clearTimeout(timeout);
+
+  if (airResp.ok) {
+    const air = await airResp.json();
+    const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
+    if (sensor?.id) {
+      const controller2 = new AbortController();
+      const timeout2 = setTimeout(() => controller2.abort(), 3000);
+
+      const sensorUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`;
+      const sensorResp = await fetch(sensorUrl, {
+        headers: { "X-API-Key": OPENAQ_API_KEY },
+        signal: controller2.signal
       });
-      if (airResp.ok) {
-        const air = await airResp.json();
-        const sensor = air.results?.[0]?.sensors?.find(s => s.name.toLowerCase().includes("pm25"));
-        if (sensor?.id) {
-          const sensorUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://api.openaq.org/v3/sensors/${sensor.id}/latest`)}`;
-          const sensorResp = await fetch(sensorUrl, {
-            headers: { "X-API-Key": OPENAQ_API_KEY }
-          });
-          if (sensorResp.ok) {
-            const sensorData = await sensorResp.json();
-            pm25Value = sensorData.results?.[0]?.value ?? null;
-          }
+      clearTimeout(timeout2);
+
+      if (sensorResp.ok) {
+        const sensorData = await sensorResp.json();
+        pm25Value = sensorData.results?.[0]?.value ?? null;
+      }
+    }
+  }
+} catch(e) {
+  console.warn("OpenAQ timeout lub błąd:", e.message);
+}
         }
       }
     } catch(e) {
